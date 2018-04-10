@@ -1,0 +1,585 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Conference</title>
+
+    <style>
+        body,
+        td {
+            font-size: 12px;
+        }
+        
+        div#container {
+            width: 1280px;
+            height: 720px
+        }
+        
+        div#table_1 {
+            width: 320px;
+            height: 280px;
+            float: left;
+        }
+        
+        div#info {
+            width: 1280px;
+            clear: both;
+            text-align: center;
+        }
+        
+        table#table_key {
+            width: 280px;
+            height: 220px;
+            border: 0px;
+        }
+    </style>
+    <script language="javascript" src="pgHtml5Bridge.js"></script>
+    <script language="javascript" src="../pgLibConference/pgLibConference.js"></script>
+
+</head>
+
+<body onload="pgInitialize()" onbeforeunload="pgClean()">
+    <div>
+        <tr><input type="checkbox" id="checkbox" onclick="btnclick()">chairman</tr>
+        <tr>
+            <span>主席 ID: </span>
+            <input id="id_confID" type="text" value="" placeholder="请找客服申请测试ID" />
+            <input id="id_SelfID" type="text" value="" placeholder="请找客服申请测试ID" />
+            <input id="id_Start" type="button" value="Start" onclick="pgStart()">
+            <input id="id_Clean" type="button" value="Clean" onclick="pgClean()">
+        </tr>
+    </div>
+    <div id="container">
+        <tr>
+            <div id="table_1">
+                <table id="table_key">
+
+
+                    <tr>
+                        <td style="padding:1px">
+                            <div id="divPrew" style="background:#000; color:#FFF; width:320px; height:240px"></div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <div id="table_1">
+                <table id="table_key">
+
+
+                    <tr>
+                        <td style="padding:1px">
+                            <div id="divView1" style="background:#000; color:#FFF; width:320px; height:240px"></div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <div id="table_1">
+                <table id="table_key">
+
+
+                    <tr>
+                        <td style="padding:1px">
+                            <div id="divView2" style="background:#000; color:#FFF; width:320px; height:240px"></div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+
+            <div id="table_1">
+                <table id="table_key">
+
+
+                    <tr>
+                        <td style="padding:1px">
+                            <div id="divView3" style="background:#000; color:#FFF; width:320px; height:240px"></div>
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </tr>
+        <tr> </tr>
+
+
+        <br><br>
+
+        <table width="646" border="1" cellpadding="0" cellspacing="0" bordercolor="#93A9E3">
+
+
+
+            <tr>
+                <td style="padding:3px">
+
+                    <input id="id_speech" type="button" value="Speech" onclick="pgSpeech()">
+                    <br><br>
+                    <span>Notify: </span>
+                    <label for="id_notify"></label><input id="id_notify" type="text" value="" />
+                    <input id="id_send" type="button" value="send" onclick="pgNotifySend()">
+                    <br><br>
+                </td>
+            </tr>
+            <tr>
+                <td height="100" valign="top" style="padding:3px">
+                    <iframe id="id_NotifyOut" width="100%" height="100%" frameborder="0" scrolling="auto" style="overflow:visible;word-break:keep-all;border:1px solid #cccccc;">
+	                </iframe>
+                </td>
+            </tr>
+            <tr>
+                <td height="24" bgcolor="#93A9E3" class="txt">**Debug info</td>
+            </tr>
+            <tr>
+                <td height="200" valign="top">
+
+                    <iframe id="id_debugOut" width="100%" height="100%" frameborder="0" scrolling="auto" style="overflow:visible;word-break:keep-all;">
+            </iframe>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="debugSwitch" type='checkbox' checked="1">check</input>
+                </td>
+            </tr>
+        </table>
+
+        <script language="javascript">
+            var m_sName = "";
+            var m_sChair = "";
+            var m_sUser = "";
+            var m_sSvr = "connect.peergine.com:7781";
+            var m_sVideoParam = "(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}";
+
+            document.getElementById("checkbox").checked = true;
+            id_confID.value = "hwq2016001";
+
+            function PG_MEMB() {
+                this.sPeer = "";
+                this.divView = "";
+            }
+            var mNode = null;
+            var m_Conf = null;
+            var m_divPrewView = "divPrew";
+            var m_divViewArray = ["divView1", "divView2", "divView3"];
+            var memberArray = [];
+
+            /**
+             * @return {null}
+             */
+            function MembSearch(sPeer) {
+                if (sPeer == "") {
+                    Out("VideoPeerSearch can't Search Start");
+                    return null;
+                }
+
+                for (var i = 0; i < memberArray.length; i++) {
+
+                    if (memberArray[i].sPeer == sPeer || memberArray[i].sPeer == "") {
+                        return memberArray[i];
+                    }
+                }
+                return null;
+            }
+
+            /**
+             * @return {boolean}
+             */
+            function VideoOpen(sPeer) {
+                var MembTmp = MembSearch(sPeer);
+                if (MembTmp == null) return false;
+
+                if (MembTmp.sPeer == "") {
+                    MembTmp.sPeer = sPeer;
+                }
+                if (m_Conf.VideoOpen(sPeer, MembTmp.divView)) {
+                    MembTmp.bOpen = true;
+                }
+                return true;
+            }
+
+            function VideoRestore(sPeer) {
+                var MembTmp = MembSearch(sPeer);
+                if (MembTmp != null) {
+                    if (MembTmp.sPeer == sPeer) {
+
+                        MembTmp.sPeer = "";
+                    }
+                }
+            }
+
+            function VideoClose(sPeer) {
+                VideoRestore(sPeer);
+                m_Conf.VideoClose(sPeer);
+            }
+
+            //-------------------------------------------------------------------------------
+            //视频传输的状态
+            function EventVideoFrameStat(sAct, sData, sPeer) {
+                //Show()
+
+            }
+            //服务端下发的通知
+            function EventSvrNotify(sAct, sData, sPeer) {
+                Show("SvrNotify :" + sData + " : " + sPeer);
+            }
+            //发给服务端的消息的回执
+            function EventSvrReply(sAct, sData, sPeer) {
+
+            }
+            //发给服务端的消息的回执
+            function EventSvrReplyError(sAct, sData, sPeer) {
+
+            }
+
+
+            //登录的结果
+            function EventLogin(sAct, sData, sPeer) {
+                // Login reply
+                // TODO: 2016/11/7 登录成功与否关系到后面的步骤能否执行 ，如果登录失败请再次初始化
+                if (sData == "0") {
+                    Show("已经登录");
+
+                } else {
+                    Show("登录失败 err = " + sData);
+
+                }
+            }
+
+            //登出
+            function EventLogout(sAct, sData, sPeer) {
+                Show("已经注销" + sData);
+            }
+
+            //保存初次连接 ,如果程序崩溃
+            //sPeer的离线消息
+            function EventPeerSync(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 提醒应用程序可以和此节点相互发送消息了
+                Show(sPeer + "节点建立连接");
+                m_Conf.MessageSend("MessageSend test", sPeer);
+
+            }
+            //sPeer的离线消息
+            function EventPeerOffline(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 提醒应用程序此节点离线了
+                Show(sPeer + "节点离线 sData = " + sData);
+            }
+
+            //sPeer的离线消息
+            function EventChairmanSync(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 提醒应用程序可以和主席发送消息了
+                Show("主席节点建立连接::请求加入会议 Act = " + sAct + " : " + sData + " : " + sPeer);
+                m_Conf.Join();
+                m_Conf.MessageSend("MessageSend test", sPeer);
+                // }
+            }
+            //sPeer的离线消息
+            function EventChairmanOffline(sAct, sData, sPeer) {
+                Show("主席节点离线 sData = " + sPeer);
+            }
+            //-------------------------------------------------------------------------
+            //sPeer的离线消息
+
+            function EventAskJoin(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 sPeer请求加入会议  MemberAdd表示把他加入会议
+                Show(sPeer + "请求加入会议->同意");
+                m_Conf.MemberAdd(sPeer);
+            }
+            //sPeer的离线消息
+            var m_bVideoStart = false;
+
+            function DoVideoOpen(sPeer) {
+                if (m_sUser > sPeer) {
+                    Show("主动请求视频。");
+                    VideoOpen(sPeer);
+                }
+            }
+
+            function EventJoin(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 这里可以获取所有会议成员  可以尝试把sPeer加入会议成员表中
+                Show(sPeer + "加入会议");
+                var sJS = "DoVideoOpen" + "('" + sPeer + "')";
+                window.setTimeout(sJS, (1 * 1000));
+
+
+                m_Conf.MessageSend("MessageSend test", sPeer);
+                m_Conf.NotifySend("NotifySend test", sPeer);
+            }
+            //sPeer的离线消息
+            function EventLeave(sAct, sData, sPeer) {
+                Show(sPeer + "离开会议");
+            }
+            //---------------------------------------------------------------------
+
+            //sPeer的离线消息
+            function EventVideoSync(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 提醒应用程序可以打开这个sPeer的视频了
+                Show("视频同步");
+            }
+            //sPeer的离线消息
+            function EventVideoSyncL(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 提醒应用可以打开这个sPeer的第二种流
+                Show("第二种视频同步");
+            }
+
+            function EventVideoOpen(sAct, sData, sPeer) {
+                //收到视频请求
+                Show(sPeer + " 请求视频连线->同意");
+                //// TODO: 2016/11/7 在这之后回复
+                //调用
+                VideoOpen(sPeer);
+            }
+
+            function EventVideoLost(sAct, sData, sPeer) {
+                // TODO: 2016/11/8  对方视频已经丢失 挂断对方视频 并尝试重新打开
+                Show(sPeer + " 的视频已经丢失 可以尝试重新连接");
+            }
+
+
+            function EventVideoClose(sAct, sData, sPeer) {
+                // TODO: 2016/11/8  通知应用程序视频已经挂断
+                Show(sPeer + " 已经挂断视频");
+                VideoRestore(sPeer);
+
+            }
+
+            function EventVideoJoin(sAct, sData, sPeer) {
+                // TODO: 2016/11/8 请求端会收到请求打开视频的结果，打开视频成功除了显示和播放视频外，还有这个事件
+                if (sData == "0") {
+                    Show(sPeer + ":" + "视频成功打开");
+                } else {
+                    Show(sPeer + ":" + "视频成功失败");
+                    VideoRestore(sPeer);
+                }
+            }
+
+            //-------------------------------------------------------------------
+            //组消息
+            function EventNotify(sAct, sData, sPeer) {
+                Show(sPeer + ": sData = " + sData);
+            }
+
+            //sPeer的消息处理
+            function EventMessage(sAct, sData, sPeer) {
+                // TODO: 2016/11/7 处理sPeer发送过来的消息
+                Show(sPeer + ":" + sData);
+            }
+
+            function EventCallSend(sAct, sData, sPeer) {
+                // CallSend （具有回执的信息） 最终结果
+            }
+
+            function EventVideoRecord(sAct, sData, sPeer) {
+                // VideoRecord 视频录制的结果
+            }
+
+            function EventVideoCamera(sAct, sData, sPeer) {
+                // VideoCamera 视频拍照的结果
+            }
+            var OnEventListener = {
+                OnEvent: function(sAct, sData, sPeer) {
+
+                    if (sAct == "VideoFrameStat") {
+                        EventVideoFrameStat(sAct, sData, sPeer);
+                    } else if (sAct == "Login") {
+                        EventLogin(sAct, sData, sPeer);
+                    } else if (sAct == "Logout") {
+                        EventLogout(sAct, sData, sPeer);
+                    } else if (sAct == "PeerOffline") {
+                        EventPeerOffline(sAct, sData, sPeer);
+                    } else if (sAct == "PeerSync") {
+                        EventPeerSync(sAct, sData, sPeer);
+                    } else if (sAct == "ChairmanOffline") {
+                        EventChairmanOffline(sAct, sData, sPeer);
+                    } else if (sAct == "ChairmanSync") {
+                        EventChairmanSync(sAct, sData, sPeer);
+                    } else if (sAct == "AskJoin") {
+                        EventAskJoin(sAct, sData, sPeer);
+                    } else if (sAct == "Join") {
+                        EventJoin(sAct, sData, sPeer);
+                    } else if (sAct == "Leave") {
+                        EventLeave(sAct, sData, sPeer);
+                    } else if (sAct == "VideoSync") {
+                        EventVideoSync(sAct, sData, sPeer);
+                    } else if (sAct == "VideoSyncL") {
+                        EventVideoSyncL(sAct, sData, sPeer);
+                    } else if (sAct == "VideoOpen") {
+                        EventVideoOpen(sAct, sData, sPeer);
+                    } else if (sAct == "VideoLost") {
+                        EventVideoLost(sAct, sData, sPeer);
+                    } else if (sAct == "VideoClose") {
+                        EventVideoClose(sAct, sData, sPeer);
+                    } else if (sAct == "VideoJoin") {
+                        EventVideoJoin(sAct, sData, sPeer);
+                    } else if (sAct == "VideoCamera") {
+                        EventVideoCamera(sAct, sData, sPeer);
+                    } else if (sAct == "VideoRecord") {
+                        EventVideoRecord(sAct, sData, sPeer);
+                    } else if (sAct == "Message") {
+                        EventMessage(sAct, sData, sPeer);
+                    } else if (sAct == "CallSend") {
+                        EventCallSend(sAct, sData, sPeer);
+                    } else if (sAct == "Notify") {
+                        EventNotify(sAct, sData, sPeer);
+                    } else if (sAct == "SvrNotify") {
+                        EventSvrNotify(sAct, sData, sPeer);
+                    } else if (sAct == "SvrReply") {
+                        EventSvrReply(sAct, sData, sPeer);
+                    } else if (sAct == "SvrReplyError") {
+                        EventSvrReplyError(sAct, sData, sPeer);
+                    }
+                },
+
+                OnOutString: function(sStr) {
+                    debugOut(sStr);
+                }
+            };
+
+            function $(ID) {
+                return document.getElementById(ID);
+            }
+
+
+            function getcontent(sData, skey) {
+                var result = "";
+                var values = sData.split("&");
+                for (var i = 0; i < values.length; i++) {
+                    var entry = values[i].split("=");
+                    if (entry[0] == skey) {
+                        result = entry[1];
+                        break;
+                    }
+                }
+                return result;
+            }
+
+
+
+            function pgInitialize() {
+                mNode = pgNewJSNode(4);
+                m_Conf = new pgLibConference(mNode, OnEventListener);
+                for (var i = 0; i < 3; i++) {
+                    var MembTmp = new PG_MEMB();
+                    MembTmp.divView = m_divViewArray[i];
+                    memberArray.push(MembTmp);
+                }
+
+            }
+
+            function btnclick() {
+                if (document.getElementById("checkbox").checked == true) {
+                    id_SelfID.disabled = true;
+                } else {
+                    id_SelfID.disabled = false;
+                }
+            }
+
+            function pgStart() {
+                if (document.getElementById("checkbox").checked == true) {
+                    if (!pgChairInit()) {
+                        return;
+                    }
+                } else {
+                    if (!pgMemberInit()) {
+                        return;
+                    }
+                }
+                m_Conf.PreviewStart("(Code){0}(Mode){3}", m_divPrewView)
+                m_Conf.VideoStart(pgVideoPutMode.Normal);
+                m_Conf.AudioStart();
+            }
+
+            function pgClean() {
+                if (m_Conf) {
+                    m_Conf.PreviewStop(m_divPrewView)
+                    m_Conf.VideoStop();
+                    m_Conf.AudioStop();
+                    m_Conf.Clean();
+                }
+            }
+
+            function pgChairInit() {
+                if (id_confID.value == "") {
+                    alert("请在“主席ID”处输入一个测试ID");
+                    return false;
+                }
+                id_SelfID = id_confID.value;
+                m_sName = id_confID.value;
+                m_sChair = m_sName;
+                m_sUser = m_sChair;
+
+                if (!m_Conf.Initialize(m_sName, m_sChair, m_sUser, "",
+                        m_sSvr, "", m_sVideoParam)) {
+                    Out("Initialize Faile! i=");
+                    alert("初始化失败。请检查网络或刷新网页重试。")
+                    return false;
+                }
+                return true;
+            }
+
+            function pgMemberInit() {
+
+                if (id_confID.value == "") {
+                    alert("请在“主席ID”处输入一个测试ID");
+                    return false;
+                }
+                if (id_SelfID.value == "") {
+                    alert("请在“自己ID”处输入另一个测试ID");
+                    return false;
+                }
+
+                m_sName = id_confID.value;
+                m_sChair = m_sName;
+
+                m_sUser = id_SelfID.value;
+
+                if (!m_Conf.Initialize(m_sName, m_sChair, m_sUser, "",
+                        m_sSvr, "", m_sVideoParam)) {
+                    Out("Initialize Faile! i=");
+                    alert("初始化失败。请检查网络或刷新网页重试。");
+                    return false;
+                }
+                return true;
+
+            }
+
+            function Out(out) {
+                debugOut(out);
+            }
+
+
+            function pgNotifySend() {
+                if (m_Conf && id_notify) {
+                    m_Conf.NotifySend(id_notify.value);
+                }
+            }
+
+
+            function Show(sMsg) {
+                try {
+                    var sHtml = "<pre style={font-size:12px;word-wrap:break-word;word-break:break-all;white-space:normal;}>" + sMsg + "</pre>";
+                    id_NotifyOut.document.body.insertAdjacentHTML("beforeEnd", sHtml);
+                    id_NotifyOut.document.body.doScroll("pageDown");
+                } catch (e) {}
+            }
+
+            function debugOutHTML(sHtml) {
+                try {
+                    id_debugOut.document.body.insertAdjacentHTML("beforeEnd", sHtml);
+                    id_debugOut.document.body.doScroll("pageDown");
+                } catch (e) {}
+            }
+
+            function debugOut(sOut) {
+                if (debugSwitch.checked) {
+                    debugOutHTML("<pre style={font-size:12px;word-wrap:break-word;word-break:break-all;white-space:normal;}>" + sOut + "</pre>");
+                }
+            }
+        </script>
+
+</body>
+
+</html>
