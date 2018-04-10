@@ -376,25 +376,6 @@ function pgLibConference(Node, OnEventListener) {
     this.m_sRelayAddr = "";
 
 
-    this.m_iAudioSpeechDisable = 0;
-    this.m_bChairman = false;
-    this.m_bInitialized = false;
-    this.m_bLogined = false;
-
-    this.m_bServiceStart = false;
-    this.m_Status.bApiVideoStart = false;
-    this.m_bApiAudioStart = false;
-
-    this.m_Stamp.iExpire = 5;
-    this.m_Status.iActiveStamp = 0;
-
-    this.m_Stamp.iKeepStamp = 0;
-    this.m_Stamp.iKeepChainmanStamp = 0;
-
-    this.m_bEventEnable = true;
-    this.m_Status.iVideoInitFlag = 0;
-
-
     this.PG_PEER = function(sObjPeer) {
         this.sObjPeer = sObjPeer;
         this.divView = "";
@@ -585,6 +566,11 @@ function pgLibConference(Node, OnEventListener) {
                     return false;
                 }
                 this.m_Status.bInitialized = true;
+                if (!this.m_InitGroup.bEmpty) {
+                    this.m_Group.Init(sName, sChair, this.m_Self.sUser);
+                    this.m_Stamp.restore();
+                    this._ServiceStart();
+                }
                 return true;
             }
         } else {
@@ -868,7 +854,7 @@ function pgLibConference(Node, OnEventListener) {
                 return false;
             }
 
-            this.m_Status.m_Status.bApiVideoStart = true;
+            this.m_Status.bApiVideoStart = true;
         }
         return true;
     };
@@ -931,7 +917,7 @@ function pgLibConference(Node, OnEventListener) {
             oPeer = new this.PG_PEER(sPeer);
             if (oPeer.divView == "" && sDivView != "") {
                 oPeer.divView = sDivView;
-                oPeer.sWndEle = this.m_Node.WndCreate(sViewDiv);
+                oPeer.sWndEle = this.m_Node.WndCreate(sDivView);
             }
 
             this.m_listVideoPeer.push(oPeer);
@@ -1606,7 +1592,7 @@ function pgLibConference(Node, OnEventListener) {
     ///---------------------------------------------------------------------------------
     // PRIVATE_CONST methods.
     this.EventProc = function(sAct, sData, sPeer) {
-        if (this.m_OnEventListener.OnEvent && typeof(this.m_OnEventListener.OnEvent) == "function" && this.m_bEventEnable == true) {
+        if (this.m_OnEventListener.OnEvent && typeof(this.m_OnEventListener.OnEvent) == "function" && this.m_Status.bEventEnable == true) {
             this.m_OnEventListener.OnEvent(sAct, sData, sPeer);
         }
     };
@@ -1697,20 +1683,6 @@ function pgLibConference(Node, OnEventListener) {
             this._NodeStop();
             return false;
         }
-        if (!this._ServiceStart()) {
-            this.OutString("ServiceStart: login failed.");
-            this._ServiceStop();
-            this._NodeStop();
-            return false;
-        }
-
-        if (this.m_Status.bApiVideoStart) {
-            this._VideoInit(this.m_Status.iVideoInitFlag);
-        }
-
-        if (this.m_Status.bApiAudioStart) {
-            this._AudioInit();
-        }
 
         return true;
     };
@@ -1757,10 +1729,10 @@ function pgLibConference(Node, OnEventListener) {
         }
 
         this.m_Node.ObjectRequest(this.m_sObjSvr, 33, "", "pgLibConference.Logout");
-        if (this.m_bLogined) {
+        if (this.m_Status.bLogined) {
             this.EventProc("Logout", "", "");
         }
-        this.m_bLogined = false;
+        this.m_Status.bLogined = false;
     };
 
     this._NodeRelogin = function(uDelay) {
@@ -2003,7 +1975,7 @@ function pgLibConference(Node, OnEventListener) {
     this._KeepDel = function(sPeer) {
         //作为成员端只接受主席端心跳 删除
         this.OutString("->KeepDel");
-        for (var i = 0; i < m_listSyncPeer.length; i++) {
+        for (var i = 0; i < this.m_listSyncPeer.length; i++) {
             if (this.m_listSyncPeer[i].sPeer == sPeer) {
                 this.m_listSyncPeer.splice(1, i);
             }
@@ -2108,7 +2080,7 @@ function pgLibConference(Node, OnEventListener) {
             return false;
         }
 
-        var sData = "(Code){" + this.m_iVideoCode + "}(Mode){" + this.m_iVideoMode + "}(Rate){" + this.m_iVideoFrmRate + "}";
+        var sData = "(Code){" + this.m_Self.iVideoCode + "}(Mode){" + this.m_Self.iVideoMode + "}(Rate){" + this.m_Self.iVideoFrmRate + "}";
 
         var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjV, 32, sData, "VideoInit");
         if (iErr > 0) {
@@ -2122,7 +2094,7 @@ function pgLibConference(Node, OnEventListener) {
         }
 
         //noinspection JSDuplicatedDeclaration
-        sData = "(Code){" + this.m_iLVideoCode + "}(Mode){" + this.m_iLVideoMode + "}(Rate){" + this.m_iLVideoFrmRate + "}";
+        sData = "(Code){" + this.m_Self.iLVideoCode + "}(Mode){" + this.m_Self.iLVideoMode + "}(Rate){" + this.m_Self.iLVideoFrmRate + "}";
 
         //noinspection JSDuplicatedDeclaration
         iErr = this.m_Node.ObjectRequest(this.m_Group.sObjLV, 32, sData, "VideoLInit");
@@ -2313,7 +2285,7 @@ function pgLibConference(Node, OnEventListener) {
         }
     };
 
-    this.ServerRelogin = function(sData) {
+    this._ServerRelogin = function(sData) {
         var sError = this.m_Node.omlGetContent(sData, "ErrCode");
         if (sError == "0") {
             var sParam = this.m_Node.omlGetContent(sData, "Param");
@@ -2323,7 +2295,7 @@ function pgLibConference(Node, OnEventListener) {
                 return;
             }
 
-            this.m_bLogined = true;
+            this.m_Status.bLogined = true;
             EventProc("Login", "0", this.m_sObjSvr);
         }
     };

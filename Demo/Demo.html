@@ -44,8 +44,8 @@
         <tr><input type="checkbox" id="checkbox" onclick="btnclick()">chairman</tr>
         <tr>
             <span>主席 ID: </span>
-            <input id="id_confID" type="text" value="" placeholder="请找客服申请测试ID" />
-            <input id="id_SelfID" type="text" value="" placeholder="请找客服申请测试ID" />
+            <input id="id_confID" type="text" value="hwq2016004" placeholder="请找客服申请测试ID" />
+            <input id="id_SelfID" type="text" value="hwq2016005" placeholder="请找客服申请测试ID" />
             <input id="id_Start" type="button" value="Start" onclick="pgStart()">
             <input id="id_Clean" type="button" value="Clean" onclick="pgClean()">
         </tr>
@@ -153,9 +153,6 @@
             var m_sUser = "";
             var m_sSvr = "connect.peergine.com:7781";
             var m_sVideoParam = "(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}";
-
-            document.getElementById("checkbox").checked = true;
-            id_confID.value = "hwq2016001";
 
             function PG_MEMB() {
                 this.sPeer = "";
