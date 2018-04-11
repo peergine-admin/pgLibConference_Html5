@@ -27,6 +27,42 @@
 
 
 #版本升级日志
+
+v19
+ 1、移植到Html5。
+ 2、修改预览:
+	/**
+     * 开始预览
+     * @param {String} sParam 打开视频参数，如"(Code){0}(Mode){3}(Rate)(66)"    
+     * @param {String} sDivPrew 显示预览的div ID名称
+     */
+    this.PreviewStart = function(sParam, sDivPrew)
+	/**
+     * 停止预览
+     * @param {String} sDivPrew divID 名称
+     */
+    this.PreviewStop = function(sDivPrew)
+	 /**
+     *  描述：打开某一成员的视频或接受某一成员视频请求
+     *  阻塞方式：非阻塞，立即返回
+     * @param {String}  sPeer:成员节点名
+     * @param {String}  sDivView div ID 数据
+     * @returns {boolean}  true 操作成功，false 操作失败
+     */
+    this.VideoOpen = function(sPeer, sDivView) 
+
+    /**
+     *  描述：打开某一成员的视频
+     * @param {String}  sPeer:成员节点名
+     * @param {String}  sDivView div ID 数据
+     * @returns {boolean}  true 操作成功，false 操作失败
+     */
+    this.VideoOpenL = function(sPeer, sDivView)
+3、 修改回调sPeer 改为不带前缀"_DEV_"
+4、 删除录像API
+5、 添加Peer信息上报。
+
+
 v1.0.5
 1.添加视频外部采集接口参数VideoInExternal
 2.视频流角度调整参数。

@@ -118,9 +118,10 @@
 
                     <input id="id_speech" type="button" value="Speech" onclick="pgSpeech()">
                     <br><br>
-                    <span>Notify: </span>
-                    <label for="id_notify"></label><input id="id_notify" type="text" value="" />
-                    <input id="id_send" type="button" value="send" onclick="pgNotifySend()">
+                    <span>MSG: </span>
+                    <label for="id_msg"></label><input id="id_msg" type="text" value="" />
+                    <input id="id_notifysend" type="button" value="NotifySend" onclick="pgNotifySend()">
+                    <input id="id_msgsend" type="button" value="MsgSend" onclick="pgMsgSend()">
                     <br><br>
                 </td>
             </tr>
@@ -152,7 +153,7 @@
             var m_sChair = "";
             var m_sUser = "";
             var m_sSvr = "connect.peergine.com:7781";
-            var m_sVideoParam = "(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}";
+            var m_sVideoParam = "(Code){3}(Mode){3}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}";
 
             function PG_MEMB() {
                 this.sPeer = "";
@@ -362,7 +363,7 @@
             //sPeer的消息处理
             function EventMessage(sAct, sData, sPeer) {
                 // TODO: 2016/11/7 处理sPeer发送过来的消息
-                Show(sPeer + ":" + sData);
+                Show(sPeer + " : " + sData);
             }
 
             function EventCallSend(sAct, sData, sPeer) {
@@ -549,18 +550,26 @@
 
 
             function pgNotifySend() {
-                if (m_Conf && id_notify) {
-                    m_Conf.NotifySend(id_notify.value);
+                if (m_Conf && id_msg) {
+                    m_Conf.NotifySend(id_msg.value);
                 }
             }
 
+            function pgMsgSend() {
+                if (m_Conf && id_msg) {
+                    m_Conf.MessageSend(id_msg.value, m_sChair);
+                }
+            }
 
             function Show(sMsg) {
                 try {
                     var sHtml = "<pre style={font-size:12px;word-wrap:break-word;word-break:break-all;white-space:normal;}>" + sMsg + "</pre>";
-                    id_NotifyOut.document.body.insertAdjacentHTML("beforeEnd", sHtml);
-                    id_NotifyOut.document.body.doScroll("pageDown");
+                    var ofrm1 = document.getElementById("id_NotifyOut");
+                    if (ofrm1) {
+                        ofrm1.contentWindow.document.body.insertAdjacentHTML("beforeEnd", sHtml);
+                    }
                 } catch (e) {}
+
             }
 
             function debugOutHTML(sHtml) {
