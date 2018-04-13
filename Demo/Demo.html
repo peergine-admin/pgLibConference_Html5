@@ -50,6 +50,11 @@
             <input id="id_Start" type="button" value="Start" onclick="pgStart()">
             <input id="id_Clean" type="button" value="Clean" onclick="pgClean()">
         </tr>
+        <br>
+        <tr>
+            <span>VideoParam: </span>
+            <input id="id_videoparam" type="text" width="400" value="(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}" placeholder="参数" />
+        </tr>
     </div>
     <div id="container">
         <tr>
@@ -516,7 +521,7 @@
                 m_sUser = m_sChair;
 
                 if (!m_Conf.Initialize(m_sName, m_sChair, m_sUser, "",
-                        m_sSvr, "", m_sVideoParam)) {
+                        m_sSvr, "", id_videoparam.value)) {
                     Out("Initialize Faile! i=");
                     alert("初始化失败。请检查网络或刷新网页重试。")
                     return false;
@@ -541,7 +546,7 @@
                 m_sUser = id_SelfID.value;
 
                 if (!m_Conf.Initialize(m_sName, m_sChair, m_sUser, "",
-                        m_sSvr, "", m_sVideoParam)) {
+                        m_sSvr, "", id_videoparam.value)) {
                     Out("Initialize Faile! i=");
                     alert("初始化失败。请检查网络或刷新网页重试。");
                     return false;
