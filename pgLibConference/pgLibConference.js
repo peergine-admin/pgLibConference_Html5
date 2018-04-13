@@ -950,12 +950,12 @@ function pgLibConference(Node, OnEventListener) {
         var oPeer = this._VideoPeerSearch(sObjPeer);
         if (oPeer == null) {
             oPeer = new PG_PEER(sObjPeer);
-            if (oPeer.divView == "" && sDivView != "") {
-                oPeer.divView = sDivView;
-                oPeer.sWndEle = this.m_Node.WndCreate(sDivView);
-            }
-
             this.m_listVideoPeer.push(oPeer);
+        }
+
+        if (oPeer.divView == "" && sDivView != "") {
+            oPeer.divView = sDivView;
+            oPeer.sWndEle = this.m_Node.WndCreate(sDivView);
         }
 
         var iErr = PUBLIC_CONST.PG_ERR_Normal;
@@ -2018,7 +2018,7 @@ function pgLibConference(Node, OnEventListener) {
 
         this._TimerStart("(Act){Keep}", this.m_Stamp.iExpire);
 
-        if (this.m_bChairman) {
+        if (this.m_Group.bChairman) {
 
             //如果是主席，主动给所有成员发心跳
             var i = 0;
@@ -2281,7 +2281,6 @@ function pgLibConference(Node, OnEventListener) {
 
         var sError = this.m_Node.omlGetContent(sData, "Error");
         if (sError == "0") {
-
             return;
         }
 
@@ -2410,7 +2409,7 @@ function pgLibConference(Node, OnEventListener) {
     this._VideoJoin = function(sObj, sData, iHandle, sObjPeer) {
         var oPeer = this._VideoPeerSearch(sObjPeer);
         if (oPeer == null) {
-            oPeer = new this.PG_PEER(sObjPeer);
+            oPeer = new PG_PEER(sObjPeer);
             this.m_listVideoPeer.push(oPeer);
 
         }
