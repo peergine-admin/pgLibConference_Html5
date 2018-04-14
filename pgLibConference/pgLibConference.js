@@ -448,7 +448,7 @@ function pgLibConference(Node, OnEventListener) {
     this.m_sObjSvr = "";
     this.m_sSvrAddr = "";
     this.m_sRelayAddr = "";
-
+    this.m_bReportPeerInfo = true;
     this.m_listVideoPeer = [];
 
     this._VideoPeerSearch = function(sObjPeer) {
@@ -2315,6 +2315,27 @@ function pgLibConference(Node, OnEventListener) {
         }
     };
 
+    this._OnChairPeerSync = function(sObj, sData) {
+        var sAct = this.m_Node.omlGetContent(sData, "Action");
+        if (sAct == "1") {
+            if (this.m_bReportPeerInfo) {
+                this._TimerStart("(Act){PeerGetInfo}(Peer){" + sObj + "}", 5, false);
+            }
+            this._KeepAdd(sObj);
+            var sChair = this._ObjPeerParsePeer(this.m_Group.sObjChair);
+            this.EventProc("ChairmanSync", "", sChair);
+        }
+    };
+
+    this._OnChairPeerError = function(sObj, sData) {
+        sMeth = this.m_Node.omlGetContent(sData, "Meth");
+        if (sMeth == "34") {
+            sError = this.m_Node.omlGetContent(sData, "Error");
+            this._KeepDel(sObj);
+            this._PeerOffline(sObj, sError);
+        }
+    };
+
     this._OnPeerSync = function(sObj, sData) {
         var sAct = this.m_Node.omlGetContent(sData, "Action");
         if ("1" == (sAct)) {
@@ -2333,7 +2354,7 @@ function pgLibConference(Node, OnEventListener) {
 
         var sMeth = this.m_Node.omlGetContent(sData, "Meth");
         var sError = this.m_Node.omlGetContent(sData, "Error");
-        if ("34" == (sMeth) && sError == ("" + PG_ERR_BadUser)) {
+        if ("34" == (sMeth) && sError == ("" + PUBLIC_CONST.PG_ERR_BadUser)) {
             //心跳包列表 删除
             if (!m_Group.bEmpty && m_Group.bChairman) {
                 _KeepDel(sObj);
@@ -2543,19 +2564,9 @@ function pgLibConference(Node, OnEventListener) {
             return 0;
         } else if (sObj == this.m_Group.sObjChair) {
             if (uMeth == 0) {
-                sAct = this.m_Node.omlGetContent(sData, "Action");
-                if (sAct == "1") {
-                    this._KeepAdd(sObj);
-                    var sChair = this._ObjPeerParsePeer(this.m_Group.sObjChair);
-                    this.EventProc("ChairmanSync", "", sChair);
-                }
+                this._OnChairPeerSync(sObj, sData);
             } else if (uMeth == 1) {
-                sMeth = this.m_Node.omlGetContent(sData, "Meth");
-                if (sMeth == "34") {
-                    sError = this.m_Node.omlGetContent(sData, "Error");
-                    this._KeepDel(sObj);
-                    this._PeerOffline(sObj, sError);
-                }
+                this._OnChairPeerError(sObj, sData);
             }
             return 0;
         } else if (this.m_Node.ObjectGetClass(sObj) == "PG_CLASS_Peer") {
@@ -2632,13 +2643,16 @@ function pgLibConference(Node, OnEventListener) {
 
         this.OutString("->OnReply" + sObj + ", " + iErr + ", " + sData + ", " + sParam);
 
+        if (sParam == "PeerGetInfo") {
+            this._OnPeerGetInfoReply(sObj, iErr, sData);
+            return 1;
+        }
+
         if (sObj == this.m_sObjSvr) {
             if (sParam == "NodeLogin") {
                 return this._NodeLoginReply(iErr, sData);
             } else if (sParam == "SvrRequest") {
                 this._SvrReply(iErr, sData);
-            } else if (sParam == "PeerGetInfo") {
-                this._OnPeerGetInfoReply(sObj, iErr, sData);
             }
 
             return 1;

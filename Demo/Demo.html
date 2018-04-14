@@ -439,6 +439,8 @@
                         EventSvrReply(sAct, sData, sPeer);
                     } else if (sAct == "SvrReplyError") {
                         EventSvrReplyError(sAct, sData, sPeer);
+                    } else {
+                        Show("sAct = " + sAct + " ,sData = " + sData + " ,sPeer = " + sPeer);
                     }
                 },
 
