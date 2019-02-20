@@ -3,6 +3,8 @@ var __IP_PORT__ = "127.0.0.1:17885";
 var __WS__URL__ = "ws://" + __IP_PORT__;
 var __WS_PARAM__ = "peergine-node";
 
+var __VERSION_URL__ = "http://" + __IP_PORT__ + "/version";
+var __PING_URL__ = "http://" + __IP_PORT__ + "/ping";
 var __ACTION_URL__ = "http://" + __IP_PORT__ + "/peergine.do";
 var m_NodeList = new Array();
 var ws; //websocket实例
@@ -684,6 +686,10 @@ function pgLibJSNode(sSession) {
     }
 }
 
+function pgJSNodeVersion() {
+    return GetFunRes1(__VERSION_URL__, "");
+}
+
 /*
  *@return {Object}
  */
@@ -727,6 +733,23 @@ function GetXmlHttpObject() {
         }
     }
     return xmlHttp;
+}
+
+function GetFunRes1(sUrl, sParam) {
+
+    var xmlhttp = GetXmlHttpObject();
+    xmlhttp.open("GET", sUrl, false);
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+    //console.log("GetText URL = " + sUrl + " Param = " + sParam)
+    try {
+        xmlhttp.send(sParam);
+    } catch (error) {
+        console.error("xmlhttp.send = " + error);
+    }
+
+    var ret = xmlhttp.responseText;
+    ////console.log("GetText RET = " + ret)
+    return ret;
 }
 
 function GetFunRes(sUrl, sParam) {
@@ -824,37 +847,32 @@ var _pgView = {
     _PG_VIEW_LIST: new Array(),
 
     imgload: function(divid) {
-        try {
-            var oDiv = document.getElementById(divid);
+        var oDiv = document.getElementById(divid);
 
-            if (oDiv) {
-                var oImg = document.getElementById(divid + "_img");
-                var iViewID = oDiv.getAttribute("ViewID");
-                var sSession = oDiv.getAttribute("NodeSess");
-                var iCount = oDiv.getAttribute("Count");
-
-                if (oImg) {
-                    oImg.src = _pgView.url + "/Session" + sSession + "/ViewID" + iViewID + "/Count" + iCount;
-                }
+        if (oDiv) {
+            var oImg = document.getElementById(divid + "_img");
+            var iViewID = oDiv.getAttribute("ViewID");
+            var sSession = oDiv.getAttribute("NodeSess");
+            var iCount = oDiv.getAttribute("Count");
+            // var sSession = oDiv.NodeSess;
+            // var iViewID = oDiv.ViewID;
+            // var iCount = oDiv.Count;
+            //console.log()
+            if (oImg) {
+                oImg.src = _pgView.url + "/Session" + sSession + "/ViewID" + iViewID + "/Count" + iCount + ".jpg";
             }
-        } catch (ex) {
-            console.error("this.imgload ex = " + ex);
         }
     },
 
     imgonload: function(divid) {
-        try {
-            var oDiv = document.getElementById(divid);
+        var oDiv = document.getElementById(divid);
 
-            if (oDiv) {
-                var oImg = document.getElementById(divid + "_img");
-                datuIMG(oImg, oDiv.offsetWidth, oDiv.offsetHeight);
+        if (oDiv) {
+            var oImg = document.getElementById(divid + "_img");
+            datuIMG(oImg, oDiv.offsetWidth, oDiv.offsetHeight);
 
-                oDiv.setAttribute("Count", (parseInt(oDiv.getAttribute("Count")) + 1));
-                window.setTimeout(function() { _pgView.imgload(divid); }, 1);
-            }
-        } catch (ex) {
-            console.error("this.imgonload ex = " + ex);
+            oDiv.setAttribute("Count", (parseInt(oDiv.getAttribute("Count")) + 1));
+            window.setTimeout(function() { _pgView.imgload(divid); }, 1);
         }
     },
 

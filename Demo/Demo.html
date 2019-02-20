@@ -42,7 +42,8 @@
 <body onload="pgInitialize()" onbeforeunload="pgClean()">
     <div>
         <tr>
-            <input type="checkbox" id="checkbox" onclick="btnclick()">chairman</tr>
+            <input type="checkbox" id="checkbox" onclick="btnclick()">chairman
+        </tr>
         <tr>
             <span>主席 ID: </span>
             <input id="id_confID" type="text" value="" placeholder="请找客服申请测试ID" />
@@ -51,10 +52,10 @@
             <input id="id_Clean" type="button" value="Clean" onclick="pgClean()">
         </tr>
         <br>
-        <tr>
-            <span>VideoParam: </span>
-            <input id="id_videoparam" type="text" width="400" value="(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){6}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}" placeholder="参数" />
-        </tr>
+        
+        <span>VideoParam: </span>
+        <input id="id_videoparam" type="text" style="width: 800px;" value="(Code){3}(Mode){2}(FrmRate){40}(LCode){3}(LMode){3}(LFrmRate){20}(Portrait){0}(BitRate){400}(CameraNo){0}" placeholder="参数" />
+        
     </div>
     <div id="container">
         <tr>
@@ -123,7 +124,7 @@
             <tr>
                 <td style="padding:3px">
 
-                    <input id="id_speech" type="button" value="Speech" onclick="pgSpeech()">
+                    <!-- <input id="id_speech" type="button" value="Speech" onclick="pgSpeech()"> -->
                     <br>
                     <br>
                     <span>MSG: </span>
@@ -136,7 +137,7 @@
                 </td>
             </tr>
             <tr>
-                <td height="100" valign="top" style="padding:3px">
+                <td height="200" valign="top" style="padding:3px">
                     <iframe id="id_NotifyOut" width="100%" height="100%" frameborder="0" scrolling="auto" style="overflow:visible;word-break:keep-all;border:1px solid #cccccc;">
                     </iframe>
                 </td>
