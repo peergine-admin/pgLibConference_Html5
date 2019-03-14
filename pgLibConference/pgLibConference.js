@@ -1368,9 +1368,13 @@ function pgLibConference(Node, OnEventListener) {
     };
 
     /**
+     * @param Peer：指定要进行发言控制的节点
+     * @param bSendEnable：本端的发言状态。false为静音，true为发言
+     * @param bRecvEnable：对端的发言状态。false为静音，true为发言
+     *    
      * @return {boolean} true成功 ，false 失败
      */
-    this.AudioSpeech = function (sPeer, bSendEnable, bRecvEnable) {
+    this.AudioSpeech2 = function (sPeer, bSendEnable, bRecvEnable) {
 
         if (!this.m_Status.bServiceStart) {
             this.OutString("Service not start ");
