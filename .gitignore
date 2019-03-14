@@ -1,2 +1,6 @@
 /.vscode/launch.json
+<<<<<<< HEAD
 /node_modules
+=======
+/node_modules/
+>>>>>>> c8dba26... ig
