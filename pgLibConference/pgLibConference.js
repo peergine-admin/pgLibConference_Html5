@@ -273,9 +273,9 @@ function PG_SELF() {
         this.bVideoRotate = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "Rotate"), 0);
         this.iCameraNo = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "CameraNo"), 0);
 
-        iAudioSpeechDisable = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "AudioSpeechDisable"), 0);
-        if (iAudioSpeechDisable == 0) {
-            iAudioSpeechDisable = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "AudioSpeech"), 0);
+        this.iAudioSpeechDisable = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "AudioSpeechDisable"), 0);
+        if (this.iAudioSpeechDisable == 0) {
+            this.iAudioSpeechDisable = PRIVATE_CONST._ParseInt(mNode.omlGetContent(sVideoParam, "AudioSpeech"), 0);
         }
 
         this.sObjSelf = "_DEV_" + sUser;
@@ -318,7 +318,7 @@ function PG_GROUP() {
         this.sChair = sChair;
         this.sUser = sUser;
         if (this.sName == ("") || this.sChair == ("")) {
-            bEmpty = true;
+            this.bEmpty = true;
         } else {
             this.bEmpty = false;
 
@@ -594,11 +594,15 @@ function pgLibConference(Node, OnEventListener) {
                 // Create Timer message handler.
 
                 // Create Node objects.
-                _NodeCallBack._mConf = this;
-
-                this.m_Node.OnExtRequest = eval("_NodeCallBack.OnExtRequest");
-                this.m_Node.OnReply = eval("_NodeCallBack.OnReply");
-
+                // _NodeCallBack._mConf = this;
+                var self = this;
+                this.m_Node.OnExtRequest = function(sObj, uMeth, sData, uHandle, sPeer){
+                    return self._OnExtRequest(sObj, uMeth, sData, uHandle, sPeer);
+                };
+                this.m_Node.OnReply = function(sObj, iErr, sData, sParam){
+                    return self._OnReply(sObj, iErr, sData, sParam);
+                };
+                
                 // Init status
                 this.m_Self.Init(sUser, sPass, sVideoParam, this.m_Node);
                 this.m_sInitSvrName = "pgConnectSvr";
@@ -1028,10 +1032,10 @@ function pgLibConference(Node, OnEventListener) {
 
         // Reset request status.
 
-        oPeer.iHandle = 0;
-        oPeer.bRequest = false;
+        // oPeer.iHandle = 0;
+        // oPeer.bRequest = false;
 
-        return true;
+        // return true;
     };
     /**
      *  描述：拒绝打开某一成员的视频
@@ -1109,8 +1113,8 @@ function pgLibConference(Node, OnEventListener) {
         }
         var sObjPeer = this._ObjPeerBuild(sPeer);
 
-        var sObjV = "";
-        var oPeer = _VideoPeerSearch(sObjPeer);
+        // var sObjV = "";
+        var oPeer = this._VideoPeerSearch(sObjPeer);
         this._VideoClose(oPeer);
         this.OutString("VideoClose: success");
         return true;
@@ -1121,7 +1125,7 @@ function pgLibConference(Node, OnEventListener) {
         this.OutString("->VideoClose : oPeer.sObjPeer" + oPeer.sObjPeer);
         if (oPeer == null)
             return false;
-        var sObj = "";
+        var sObjV = "";
         if (oPeer.bLarge) {
             sObjV = this.m_Group.sObjLV;
         } else {
@@ -1324,7 +1328,7 @@ function pgLibConference(Node, OnEventListener) {
     this.AudioPeerVolume = function (sPeer, iType, iVolume) {
 
         if (!this.m_Status.bApiAudioStart) {
-            OutString("Audio not init");
+            this.OutString("Audio not init");
             return false;
         }
 
@@ -1366,7 +1370,7 @@ function pgLibConference(Node, OnEventListener) {
     /**
      * @return {boolean} true成功 ，false 失败
      */
-    this.AudioSpeech = function (sPeer, bEnable, bRecvEnable) {
+    this.AudioSpeech = function (sPeer, bSendEnable, bRecvEnable) {
 
         if (!this.m_Status.bServiceStart) {
             this.OutString("Service not start ");
@@ -1380,7 +1384,7 @@ function pgLibConference(Node, OnEventListener) {
 
         var sObjPeer = this._ObjPeerBuild(sPeer);
 
-        var bRet = false;
+        // var bRet = false;
         var iSendEnable = bSendEnable ? 1 : 0;
         var iRecvEnable = bRecvEnable ? 1 : 0;
         var sData = "(Peer){" + sObjPeer + "}(ActSelf){" + iSendEnable + "}(ActPeer){" + iRecvEnable + "}";
@@ -1415,7 +1419,7 @@ function pgLibConference(Node, OnEventListener) {
 
     this.CameraSwitch = function (bEnable) {
 
-        if (!m_Status.bServiceStart) {
+        if (!this.m_Status.bServiceStart) {
             this.OutString("CameraSwitch: Service no start");
             return false;
         }
@@ -1426,7 +1430,7 @@ function pgLibConference(Node, OnEventListener) {
             var sData = "(Item){9}(Value){" + iEnable + "}";
             var iErr = this.m_Node.ObjectRequest("_vSwitch", 2, sData, "SetOption");
             if (iErr > 0) {
-                OutString("CameraSwitch: Set option, iErr=" + iErr);
+                this.OutString("CameraSwitch: Set option, iErr=" + iErr);
             } else {
                 bRet = true;
             }
@@ -1534,7 +1538,7 @@ function pgLibConference(Node, OnEventListener) {
 
         var iErr = this.m_Node.ObjectRequest(this.m_sObjSvr, 35, ("1024:" + sData), "pgLibConference.SvrRequest");
         if (iErr > 0) {
-            OutString("pgLibConference.SvrRequest: iErr=" + iErr);
+            this.OutString("pgLibConference.SvrRequest: iErr=" + iErr);
             return false;
         }
 
@@ -1861,7 +1865,7 @@ function pgLibConference(Node, OnEventListener) {
                 var sDataMdf = "(Action){1}(PeerList){(" + this.m_Self.sObjSelf + "){" + uMask + "}}";
                 var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
                 if (iErr > 0) {
-                    OutString("MemberAdd: Add group member failed");
+                    this.OutString("MemberAdd: Add group member failed");
                     break;
                 }
             } else {
@@ -1875,7 +1879,7 @@ function pgLibConference(Node, OnEventListener) {
             }
 
             if (!this.m_Node.ObjectAdd(this.m_Group.sObjD, "PG_CLASS_Data", this.m_Group.sObjG, 0)) {
-                OutString("ServiceStart: Add  Data failed");
+                this.OutString("ServiceStart: Add  Data failed");
                 this._ServiceStop();
                 return;
             }
@@ -1895,6 +1899,7 @@ function pgLibConference(Node, OnEventListener) {
             this.m_Stamp.iKeepStamp = 0;
             return true;
 
+        // eslint-disable-next-line no-constant-condition
         } while (false);
         this._ServiceStop();
 
@@ -2137,7 +2142,7 @@ function pgLibConference(Node, OnEventListener) {
                 break;
         }
 
-        if (!this.m_Node.ObjectAdd(this.m_Group.sObjA, "PG_CLASS_Audio", this.m_Group.sObjG, (0x10000 | 0x01))) {
+        if (!this.m_Node.ObjectAdd(this.m_Group.sObjA, "PG_CLASS_Audio", this.m_Group.sObjG, uFlag)) {
             this.OutString("_AudioInit: Add 'thisAudio' failed.");
             return false;
         }
@@ -2158,8 +2163,11 @@ function pgLibConference(Node, OnEventListener) {
 
     this._TimerStart = function (sParam, iTimeout) {
         this.OutString("_TimerStart: sParam=" + sParam);
-        var sJS = "_NodeCallBack.OnTimeout" + "('" + sParam + "')";
-        return window.setTimeout(sJS, (iTimeout * 1000));
+        // var sJS = "_NodeCallBack.OnTimeout" + "('" + sParam + "')";
+        var self = this;
+        return window.setTimeout(function(self,sParam){
+            self._OnTimeout(sParam);
+        }, (iTimeout * 1000),self,sParam);
     };
 
     this._TimerStop = function (iTimerID) {
@@ -2335,9 +2343,9 @@ function pgLibConference(Node, OnEventListener) {
     };
 
     this._OnChairPeerError = function (sObj, sData) {
-        sMeth = this.m_Node.omlGetContent(sData, "Meth");
+        var sMeth = this.m_Node.omlGetContent(sData, "Meth");
         if (sMeth == "34") {
-            sError = this.m_Node.omlGetContent(sData, "Error");
+            var sError = this.m_Node.omlGetContent(sData, "Error");
             this._KeepDel(sObj);
             this._PeerOffline(sObj, sError);
         }
@@ -2363,10 +2371,10 @@ function pgLibConference(Node, OnEventListener) {
         var sError = this.m_Node.omlGetContent(sData, "Error");
         if ("34" == (sMeth) && sError == ("" + PUBLIC_CONST.PG_ERR_BadUser)) {
             //心跳包列表 删除
-            if (!m_Group.bEmpty && m_Group.bChairman) {
-                _KeepDel(sObj);
+            if (!this.m_Group.bEmpty && this.m_Group.bChairman) {
+                this._KeepDel(sObj);
             }
-            _PeerOffline(sObj, sError);
+            this._PeerOffline(sObj, sError);
         }
     };
 
@@ -2413,6 +2421,7 @@ function pgLibConference(Node, OnEventListener) {
         var sPeerList = this.m_Node.omlGetEle(sData, "PeerList.", 256, 0);
 
         var iInd = 0;
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             var sEle = this.m_Node.omlGetEle(sPeerList, "", 1, iInd);
             if (!sEle) {
@@ -2689,7 +2698,7 @@ function pgLibConference(Node, OnEventListener) {
 
         if (sObj == this.m_Group.sObjA) {
             if (sParam == "AudioPeerVolume") { // Cancel file
-                this.EventProc("AudioPeerVolume", Integer.valueOf(iErr).toString(), sObj);
+                this.EventProc("AudioPeerVolume", ( "" + iErr).toString(), sObj);
             }
         }
         return 1;
