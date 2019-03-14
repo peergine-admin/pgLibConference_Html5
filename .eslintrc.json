@@ -1,0 +1,59 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "node": true,
+        "node-globals/env": true
+    },
+    "plugins": ["node-globals"],
+    "extends": "eslint:recommended",
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly",
+        "_ParseInt": "readonly",
+        "_AddrToReadable": "readonly",
+        
+        "VIDEO_OnlyInput" : true ,
+        "VIDEO_OnlyOutput" : true,
+        "VIDEO_Normal" : true,
+        "PG_METH_VIDEO_Open": true,
+        "PG_METH_VIDEO_Close": true,
+        "PG_METH_VIDEO_Camera": true,
+        "PG_METH_PEER_Message": true,
+        "EVENT_PEER_OFFLINE" : true,
+        "EVENT_PEER_SYNC" : true,
+        "EVENT_VIDEO_LOST" : true,
+        "EVENT_VIDEO_OPEN":true,
+        "EVENT_VIDEO_OPEN_1":true,
+        "EVENT_VIDEO_CLOSE":true,
+        "EVENT_VIDEO_CLOSE_1":true,
+        "EVENT_VIDEO_FRAME_STAT":true,
+        "EVENT_VIDEO_FRAME_STAT_1":true,
+        "EVENT_VIDEO_CAMERA":true,
+        "EVENT_VIDEO_CAMERA_1":true,
+        "EVENT_VIDEO_RECORD":true,
+        "EVENT_VIDEO_RECORD_1":true,
+
+        "PG_ERR_Normal" : true,
+        "PG_ERR_BadParam":true,
+        "VIDEO_PEER_MODE_Leave":true,
+        "VIDEO_PEER_MODE_Request":"readonly",
+        "VIDEO_PEER_MODE_Response":"readonly",
+        "VIDEO_PEER_MODE_Join":"readonly",
+        "VIDEO_RESPONSE_TIMEOUT":true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "esversion" : 6
+    },
+    "rules": {
+        "no-dupe-args": 2,
+        "no-dupe-keys": 2,
+        "no-duplicate-case": 2,
+        "no-empty": 2,
+        "global-require": 1,
+        "no-func-assign": 2,
+        "no-inner-declarations": [2, "functions"]
+    }
+}

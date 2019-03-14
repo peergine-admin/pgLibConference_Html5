@@ -174,6 +174,7 @@
             }
             var mNode = null;
             var m_Conf = null;
+            var m_Conf1 = null;
             var m_divPrewView = "divPrew";
             var m_divViewArray = ["divView1", "divView2", "divView3"];
             var memberArray = [];
@@ -450,6 +451,66 @@
                     debugOut(sStr);
                 }
             };
+            var OnEventListener1 = {
+                OnEvent: function(sAct, sData, sPeer) {
+
+                    if (sAct == "VideoFrameStat") {
+                        EventVideoFrameStat(sAct, sData, sPeer);
+                    } else if (sAct == "Login") {
+                        EventLogin(sAct, sData, sPeer);
+                    } else if (sAct == "Logout") {
+                        EventLogout(sAct, sData, sPeer);
+                    } else if (sAct == "PeerOffline") {
+                        EventPeerOffline(sAct, sData, sPeer);
+                    } else if (sAct == "PeerSync") {
+                        EventPeerSync(sAct, sData, sPeer);
+                    } else if (sAct == "ChairmanOffline") {
+                        EventChairmanOffline(sAct, sData, sPeer);
+                    } else if (sAct == "ChairmanSync") {
+                        EventChairmanSync(sAct, sData, sPeer);
+                    } else if (sAct == "AskJoin") {
+                        EventAskJoin(sAct, sData, sPeer);
+                    } else if (sAct == "Join") {
+                        EventJoin(sAct, sData, sPeer);
+                    } else if (sAct == "Leave") {
+                        EventLeave(sAct, sData, sPeer);
+                    } else if (sAct == "VideoSync") {
+                        EventVideoSync(sAct, sData, sPeer);
+                    } else if (sAct == "VideoSyncL") {
+                        EventVideoSyncL(sAct, sData, sPeer);
+                    } else if (sAct == "VideoOpen") {
+                        EventVideoOpen(sAct, sData, sPeer);
+                    } else if (sAct == "VideoLost") {
+                        EventVideoLost(sAct, sData, sPeer);
+                    } else if (sAct == "VideoClose") {
+                        EventVideoClose(sAct, sData, sPeer);
+                    } else if (sAct == "VideoJoin") {
+                        EventVideoJoin(sAct, sData, sPeer);
+                    } else if (sAct == "VideoCamera") {
+                        EventVideoCamera(sAct, sData, sPeer);
+                    } else if (sAct == "VideoRecord") {
+                        EventVideoRecord(sAct, sData, sPeer);
+                    } else if (sAct == "Message") {
+                        EventMessage(sAct, sData, sPeer);
+                    } else if (sAct == "CallSend") {
+                        EventCallSend(sAct, sData, sPeer);
+                    } else if (sAct == "Notify") {
+                        EventNotify(sAct, sData, sPeer);
+                    } else if (sAct == "SvrNotify") {
+                        EventSvrNotify(sAct, sData, sPeer);
+                    } else if (sAct == "SvrReply") {
+                        EventSvrReply(sAct, sData, sPeer);
+                    } else if (sAct == "SvrReplyError") {
+                        EventSvrReplyError(sAct, sData, sPeer);
+                    } else {
+                        Show("sAct = " + sAct + " ,sData = " + sData + " ,sPeer = " + sPeer);
+                    }
+                },
+
+                OnOutString: function(sStr) {
+                    debugOut(sStr);
+                }
+            };
 
             function $(ID) {
                 return document.getElementById(ID);
@@ -473,7 +534,9 @@
 
             function pgInitialize() {
                 mNode = pgNewJSNode(4);
+                mNode1 = pgNewJSNode(5);
                 m_Conf = new pgLibConference(mNode, OnEventListener);
+                m_Conf1 = new pgLibConference(mNode1, OnEventListener1);
                 for (var i = 0; i < 3; i++) {
                     var MembTmp = new PG_MEMB();
                     MembTmp.divView = m_divViewArray[i];
@@ -551,6 +614,12 @@
                 m_sUser = id_SelfID.value;
 
                 if (!m_Conf.Initialize(m_sName, m_sChair, m_sUser, "",
+                        m_sSvr, "", id_videoparam.value)) {
+                    Out("Initialize Faile! i=");
+                    alert("初始化失败。请检查网络或刷新网页重试。");
+                    return false;
+                }
+                if (!m_Conf1.Initialize(m_sName , m_sChair, m_sChair, "",
                         m_sSvr, "", id_videoparam.value)) {
                     Out("Initialize Faile! i=");
                     alert("初始化失败。请检查网络或刷新网页重试。");

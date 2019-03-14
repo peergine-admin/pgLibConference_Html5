@@ -1,0 +1,33 @@
+{
+  "name": "conference",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "gulp": "./node_modules/.bin/gulp javascript",
+    "validate": "npm ls",
+    "test-page": "echo \"open http://127.0.0.1:8081/test/Demo.html\" && http-server -p 8081",
+    "test": "mocha test/unittest/"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "filetransfer": "^2.0.5"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "eslint": "^5.15.1",
+    "eslint-config-google": "^0.12.0",
+    "eslint-plugin-node-globals": "^0.1.0",
+    "gulp": "^4.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
+    "http-server": "^0.11.1",
+    "mocha": "^6.0.2",
+    "request": "^2.88.0",
+    "uglify-js": "^3.4.9",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  }
+}
