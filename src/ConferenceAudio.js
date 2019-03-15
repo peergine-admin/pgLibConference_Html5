@@ -35,7 +35,7 @@ Audio.prototype.AudioCreate = function (iFlag) {
 	var self = this;
 	var Node = this.Node;
 	var OutString = this.OutString;
-   	OutString("Audio.AudioCreate begin");
+    OutString("Audio.AudioCreate begin");
     var uFlag = 0x10000 | 0x01;
     switch (iFlag) {
     case 1:

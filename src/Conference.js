@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 var KEEP_TIMER_INTERVAL = 2;
+
 function Conference(opts){
     this.sChair = "";
 	this.iKeepTimer = -1;
@@ -25,7 +26,7 @@ function Conference(opts){
  * 阻塞方式：非阻塞，立即返回
  * iExpire：[IN] 心跳间隔。
  */
-this.SetExpire = function (iExpire) {
+Conference.prototype.SetExpire = function (iExpire) {
     if (iExpire < (KEEP_TIMER_INTERVAL * 2)) {
         this.m_Stamp.iExpire = 0;
     } else {
@@ -33,41 +34,6 @@ this.SetExpire = function (iExpire) {
     }
 };
 
-this._GroupUpdate = function (sData) {
-    var self = this;
-    var Node = this.Node;
-
-    var sAct = Node.omlGetContent(sData, "Action");
-    var sPeerList = Node.omlGetEle(sData, "PeerList.", 256, 0);
-
-    var iInd = 0;
-    while (sPeerList) {
-        var sEle = Node.omlGetEle(sPeerList, "", 1, iInd);
-        if (!sEle) {
-            break;
-        }
-
-        var sObjPeer = this.m_Node.omlGetName(sEle, "");
-        if (self.IsDevice()) {
-            var sPeer = this._ObjPeerParsePeer(sObjPeer);
-            if (sAct == "1") {
-                this.EventProc("Join", "", sPeer);
-            } else {
-
-                this.EventProc("Leave", "", sPeer);
-            }
-        }
-
-        iInd++;
-    }
-
-};
-
-
-this._OnDataNotify = function (sObjPeer, sData) {
-    var sPeer1 = this._ObjPeerParsePeer(sObjPeer);
-    return this.EventProc("Notify", sData, sPeer1);
-};
 
 this._ServiceStart = function () {
     var self = this;
@@ -130,6 +96,43 @@ this._ServiceStart = function () {
     return false;
 };
 
+Conference.prototype.onGroupUpdate = function (sData) {
+    var self = this;
+    var Node = this.Node;
+
+    var sAct = Node.omlGetContent(sData, "Action");
+    var sPeerList = Node.omlGetEle(sData, "PeerList.", 256, 0);
+
+    var iInd = 0;
+    while (sPeerList) {
+        var sEle = Node.omlGetEle(sPeerList, "", 1, iInd);
+        if (!sEle) {
+            break;
+        }
+
+        var sObjPeer = this.m_Node.omlGetName(sEle, "");
+        if (self.IsDevice()) {
+            var sPeer = this._ObjPeerParsePeer(sObjPeer);
+            if (sAct == "1") {
+                this.EventProc("Join", "", sPeer);
+            } else {
+
+                this.EventProc("Leave", "", sPeer);
+            }
+        }
+
+        iInd++;
+    }
+
+};
+
+
+this._OnDataNotify = function (sObjPeer, sData) {
+    var sPeer1 = this._ObjPeerParsePeer(sObjPeer);
+    return this.EventProc("Notify", sData, sPeer1);
+};
+
+
 this._ServiceStop = function () {
     this.OutString(" ->ServiceStop");
 
@@ -156,27 +159,7 @@ this._ServiceStop = function () {
     this.m_Node.ObjectDelete(this.m_Group.sObjD);
     this.m_Node.ObjectDelete(this.m_Group.sObjG);
 };
-	/*
-
-     *  描述：开始会议，初始化视音频等会议相关数据。
-     *  阻塞方式：非阻塞
-     *  返回值：true 成功  false 失败
-     */
-	this.Start = function (sName, sChair) {
-		this.m_Group.Init(sName, sChair, this.m_Self.sUser);
-		this.m_Stamp.restore();
-		return !this.m_Group.bEmpty && this._ServiceStart();
-	};
-
-	/*
-     *  描述：停止会议，初始化视音频等会议相关数据。
-     *  阻塞方式：非阻塞
-     *  返回值：true 成功  false 失败
-     */
-	this.Stop = function () {
-		this._ServiceStop();
-		this.m_Group.bEmpty = true;
-	};
+	
 
 	
 
@@ -274,28 +257,7 @@ this._ServiceStop = function () {
 		}
 	};
 
-	/**
-     * 描述：切换会议和主席
-     * @param {String} sName 会议名称
-     * @param {String} sChair 主席ID
-     * @return {boolean} true 操作成功，false 操作失败
-     */
-	this.Reset = function (sName, sChair) {
-		this.OutString("->Reset");
-
-		if (this.m_Status.bServiceStart) {
-			this._ServiceStop();
-		}
-		this.m_Group.Init(sName, sChair, this.m_Self.sUser);
-		this.m_Stamp.restore();
-		if (!this.m_Group.bEmpty) {
-			if (this._ServiceStart()) {
-				return true;
-			}
-		}
-		return false;
-	};
-
+	
 
 
 

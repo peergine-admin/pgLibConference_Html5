@@ -92,7 +92,13 @@ function pgLibConference(Node, OnEventListener) {
 
 	///------------------------------------------------------------------------------
 	// API methods.
-
+	/**
+ * 描述：设置心跳间隔。
+ * 阻塞方式：非阻塞，立即返回
+ * iExpire：[IN] 心跳间隔。
+ */
+this.SetExpire = function (iExpire) {
+}	;
 
 	/**
      * 开始预览
@@ -110,6 +116,52 @@ function pgLibConference(Node, OnEventListener) {
 	this.PreviewStop = function (sDivPrew) {
 		
 	};
+
+	/*
+
+     *  描述：开始会议，初始化视音频等会议相关数据。
+     *  阻塞方式：非阻塞
+     *  返回值：true 成功  false 失败
+     */
+	this.Start = function (sName, sChair) {
+		this.m_Group.Init(sName, sChair, this.m_Self.sUser);
+		this.m_Stamp.restore();
+		return !this.m_Group.bEmpty && this._ServiceStart();
+	};
+
+	/*
+     *  描述：停止会议，初始化视音频等会议相关数据。
+     *  阻塞方式：非阻塞
+     *  返回值：true 成功  false 失败
+     */
+	this.Stop = function () {
+		this._ServiceStop();
+		this.m_Group.bEmpty = true;
+	};
+
+	/**
+     * 描述：切换会议和主席
+     * @param {String} sName 会议名称
+     * @param {String} sChair 主席ID
+     * @return {boolean} true 操作成功，false 操作失败
+     */
+	this.Reset = function (sName, sChair) {
+		this.OutString("->Reset");
+
+		if (this.m_Status.bServiceStart) {
+			this._ServiceStop();
+		}
+		this.m_Group.Init(sName, sChair, this.m_Self.sUser);
+		this.m_Stamp.restore();
+		if (!this.m_Group.bEmpty) {
+			if (this._ServiceStart()) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+
 	/**
      *  描述：初始化视频设置
      *  iFlag:参考1）成员定义：
