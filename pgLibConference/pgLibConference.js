@@ -174,22 +174,26 @@ var PRIVATE_CONST = {
             }
 
             var sReadable = "";
+            var iIP0;
+            var iIP1;
+            var iIP2;
+            var iIP3;
             if (sAddrSect[0] == "0" &&
                 sAddrSect[1] == "0" &&
                 sAddrSect[2] == "0" &&
                 sAddrSect[3] != "0" &&
                 sAddrSect[3] != "1") {
                 var iIP = parseInt(sAddrSect[3], 16);
-                var iIP0 = (iIP >> 24) & 0xff;
-                var iIP1 = (iIP >> 16) & 0xff;
-                var iIP2 = (iIP >> 8) & 0xff;
-                var iIP3 = (iIP & 0xff);
+                iIP0 = (iIP >> 24) & 0xff;
+                iIP1 = (iIP >> 16) & 0xff;
+                iIP2 = (iIP >> 8) & 0xff;
+                iIP3 = (iIP & 0xff);
                 sReadable = (iIP0 + "." + iIP1 + "." + iIP2 + "." + iIP3 + ":" + sAddrSect[4]);
             } else {
-                var iIP0 = parseInt(sAddrSect[0], 16);
-                var iIP1 = parseInt(sAddrSect[1], 16);
-                var iIP2 = parseInt(sAddrSect[2], 16);
-                var iIP3 = parseInt(sAddrSect[3], 16);
+                iIP0 = parseInt(sAddrSect[0], 16);
+                iIP1 = parseInt(sAddrSect[1], 16);
+                iIP2 = parseInt(sAddrSect[2], 16);
+                iIP3 = parseInt(sAddrSect[3], 16);
 
                 var iWord0 = (iIP0 >> 16) & 0xffff;
                 var iWord1 = (iIP0 & 0xffff);
