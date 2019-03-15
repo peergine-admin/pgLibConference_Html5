@@ -31,7 +31,7 @@
  * */
 
 var pgLibNode = require("./ConferencePeer");
-var pgLibConferenceEvent = require("./pgLibConferenceConst");
+require("./pgLibConferenceConst");
 var VideoPeerList = require("./VideoPeerList").default;
 
 var ID_PREFIX = "_DEV_";
@@ -179,6 +179,66 @@ this.VideoClose = function (sPeer) {
     this.OutString("VideoClose: success");
     return true;
 };
+
+	// Start and stop audio
+	/**
+     *  描述：开始播放或采集音频
+     *  阻塞方式：非阻塞，立即返回
+     *   返回值： true 操作成功，false 操作失败
+     * @return {boolean}
+     */
+
+	this.AudioStart = function () {
+		if (!this.m_Status.bServiceStart) {
+			return false;
+		}
+
+		if (this.m_Status.bApiAudioStart) {
+			return true;
+		}
+
+		if (!this._AudioInit()) {
+			return false;
+		}
+
+		this.m_Status.bApiAudioStart = true;
+		return true;
+	};
+
+	/**
+     *  描述：停止播放或采集音频
+     *  阻塞方式：非阻塞，立即返回
+     *
+     */
+
+	this.AudioStop = function () {
+		if (!this.m_Status.bServiceStart) {
+			return;
+		}
+
+		if (this.m_Status.bApiAudioStart) {
+			this._AudioClean();
+			this.m_Status.bApiAudioStart = false;
+		}
+	};
+
+	
+	/**
+	 * 
+	 * 设置自身的扬声器和麦克风
+	 * 阻塞方式：非阻塞，立即返回
+	 * sPeer 节点名 （在麦克风下为空则表示控制本端的麦克风音量。 ）
+	 * iMode 0表示扬声器 1表示麦克风
+	 * iVolume 表示音量的百分比
+     * @return {boolean}
+     */
+	this.AudioPeerVolume = function (sPeer, iType, iVolume) {
+		return;
+	};
+
+	/**
+	 * @return {boolean} true成功 ，false 失败
+	 */
 
 	this.OutString = function (sStr) {
 		if (this.mEventProcListener.OnOutString && typeof (this.mEventProcListener.OnOutString) == "function") {

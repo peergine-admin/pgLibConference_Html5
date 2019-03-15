@@ -609,18 +609,19 @@ ConferenceVideo.prototype.TimerStart = function(){
                     self.sendTimerActive(oPeer.sObjPeer);
                 }
 
-                if(oPeer.smallVideoMode == VIDEO_PEER_MODE_Request){
+                //自动关闭检测
+                // if(oPeer.smallVideoMode == VIDEO_PEER_MODE_Request){
                     
-                }
-                if(oPeer.smallVideoMode == VIDEO_PEER_MODE_Response){
+                // }
+                // if(oPeer.smallVideoMode == VIDEO_PEER_MODE_Response){
 
-                }
-                if(oPeer.largeVideoMode == VIDEO_PEER_MODE_Request){
+                // }
+                // if(oPeer.largeVideoMode == VIDEO_PEER_MODE_Request){
                     
-                }
-                if(oPeer.largeVideoMode == VIDEO_PEER_MODE_Response){
+                // }
+                // if(oPeer.largeVideoMode == VIDEO_PEER_MODE_Response){
 
-                }
+                // }
             },self);
 
             self.iTimerStampLastCheck = self.iTimerStamp;
