@@ -161,6 +161,44 @@ this.SetExpire = function (iExpire) {
 		return false;
 	};
 
+		/**
+     *  描述：请求加入会议（成员端）
+     *  阻塞方式：非阻塞，立即返回
+     *  返回值： true 操作成功，false 操作失败
+     * @return {boolean}
+     */
+
+	this.Join = function () {
+		if (this.m_Status.bServiceStart && !this.m_Group.bChairman) {
+
+			var sData = "Join?" + this.m_Self.sObjSelf;
+			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjChair, 36, sData, "Join");
+			if (iErr > 0) {
+				this.OutString("Join:ObjectRequest Err=" + iErr);
+				return false;
+			}
+			return true;
+		}
+		return false;
+	};
+
+	/**
+     *  描述：离开会议
+     *  阻塞方式：非阻塞，立即返回
+     * @return {boolean}
+     */
+
+	this.Leave = function () {
+
+		if (this.m_Status.bServiceStart) {
+			var sData = "(Action){0}(PeerList){(" + this.m_Self.sObjSelf + "){}}";
+			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sData, "Leave");
+			if (iErr > 0) {
+				this.OutString("Leave:ObjectRequest Err=" + iErr);
+				return false;
+			}
+		}
+	};
 
 	/**
      *  描述：初始化视频设置

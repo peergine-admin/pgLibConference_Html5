@@ -5,6 +5,8 @@ function Conference(opts){
     this.sChair = "";
 	this.iKeepTimer = -1;
 	this.iActiveTimer = -1;
+
+
 	this.bChairman = false;
 	this.sObjChair = "";
 
@@ -35,7 +37,7 @@ Conference.prototype.SetExpire = function (iExpire) {
 };
 
 
-this._ServiceStart = function () {
+Conference.prototype.GroupCreate = function () {
     var self = this;
     var Node = this.Node;
     var OutString = this.OutString;
@@ -44,7 +46,7 @@ this._ServiceStart = function () {
     var sObjSelf = this.sObjSelf;
     var sObjG = this.sObjG;
 
-    OutString(" ->ServiceStart ");
+    OutString("Conference.ServiceStart ");
     do {
         if (sObjChair == sObjSelf) {
             // Add group object.
@@ -96,6 +98,87 @@ this._ServiceStart = function () {
     return false;
 };
 
+
+Conference.prototype.GroupDestroy = function () {
+    this.OutString(" ->ServiceStop");
+
+    if (this.m_Node == null) {
+        return;
+    }
+
+    this.m_Status.bServiceStart = false;
+
+    if (this.m_Status.bApiVideoStart) {
+        this._VideoClean();
+
+    }
+    if (this.m_Status.bApiAudioStart) {
+        this._AudioClean();
+
+    }
+    this.m_Status.bApiVideoStart = false;
+    this.m_Status.bApiAudioStart = false;
+
+    var sDataMdf = "(Action){0}(PeerList){(" + this.m_Node.omlEncode(this.m_Self.sObjSelf) + "){0}}";
+    this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
+
+    this.m_Node.ObjectDelete(this.m_Group.sObjD);
+    this.m_Node.ObjectDelete(this.m_Group.sObjG);
+};
+
+	/**
+     *  描述：添加成员（主席端）
+     *  阻塞方式：非阻塞，立即返回
+     * @param {String} sMember：[IN] 成员名 
+     * @return {boolean} true 操作成功，false 操作失败
+     */
+Conference.prototype.GroupMemberAdd = function (sMember) {
+	var bRet = false;
+
+	if (this.m_Status.bServiceStart && this.m_Group.bChairman) {
+		if (sMember == "") {
+			this.OutString("No Group or sMember name");
+			return false;
+		}
+		var sObjPeer = this._ObjPeerBuild(sMember);
+
+		var uMask = 0x0200; // Tell all.
+		var sDataMdf = "(Action){1}(PeerList){(" + sObjPeer + "){" + uMask + "}}";
+		var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
+		if (iErr > 0) {
+			this.OutString("MemberAdd: Add group member failed err=" + iErr);
+			return false;
+		} else {
+			bRet = true;
+		}
+	}
+	return bRet;
+};
+
+/**
+ *  描述：删除成员（主席端）
+ *  sMember：[IN] 成员名
+ *  阻塞方式：非阻塞，立即返回
+ */
+Conference.prototype.GroupMemberDelete = function (sMember) {
+
+	this.OutString("MemberDel");
+
+	if (this.m_Status.bServiceStart && this.m_Group.bChairman) {
+		if (sMember == "") {
+			this.OutString("No Group or sMember name");
+			return;
+		}
+		var sObjPeer = this._ObjPeerBuild(sMember);
+
+		var sDataMdf = "(Action){0}(PeerList){(" + sObjPeer + "){}}";
+		var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
+		if (iErr > 0) {
+			this.OutString("MemberAdd: Add group member failed err=" + iErr);
+		}
+	}
+};
+
 Conference.prototype.onGroupUpdate = function (sData) {
     var self = this;
     var Node = this.Node;
@@ -126,166 +209,35 @@ Conference.prototype.onGroupUpdate = function (sData) {
 
 };
 
+/**
+ *  描述：给所有成员节点发送消息
+ *  阻塞方式：非阻塞，立即返回
+ *  sMsg：[IN] 消息内容
+ *  返回值： true 操作成功，false 操作失败
+ * @return {boolean}
+ */
+Conference.prototype.NotifySend = function (sData) {
+	if (!this.m_Status.bServiceStart) {
+		return false;
+	}
+	if (sData == "") {
+		return false;
+	}
 
-this._OnDataNotify = function (sObjPeer, sData) {
+	var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjD, 32, sData, "pgLibConference.NotifySend");
+	if (iErr > 0) {
+		this.OutString("pgLibConference.NotifySend Err=" + iErr);
+		return false;
+	}
+	return true;
+};
+
+Conference.prototype._OnDataNotify = function (sObjPeer, sData) {
     var sPeer1 = this._ObjPeerParsePeer(sObjPeer);
     return this.EventProc("Notify", sData, sPeer1);
 };
 
 
-this._ServiceStop = function () {
-    this.OutString(" ->ServiceStop");
-
-    if (this.m_Node == null) {
-        return;
-    }
-
-    this.m_Status.bServiceStart = false;
-
-    if (this.m_Status.bApiVideoStart) {
-        this._VideoClean();
-
-    }
-    if (this.m_Status.bApiAudioStart) {
-        this._AudioClean();
-
-    }
-    this.m_Status.bApiVideoStart = false;
-    this.m_Status.bApiAudioStart = false;
-
-    var sDataMdf = "(Action){0}(PeerList){(" + this.m_Node.omlEncode(this.m_Self.sObjSelf) + "){0}}";
-    this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
-
-    this.m_Node.ObjectDelete(this.m_Group.sObjD);
-    this.m_Node.ObjectDelete(this.m_Group.sObjG);
-};
-	
-
-	
-
-
-	/**
-     *  描述：添加成员（主席端）
-     *  阻塞方式：非阻塞，立即返回
-     * @param {String} sMember：[IN] 成员名 
-     * @return {boolean} true 操作成功，false 操作失败
-     */
-	this.MemberAdd = function (sMember) {
-		var bRet = false;
-
-		if (this.m_Status.bServiceStart && this.m_Group.bChairman) {
-			if (sMember == "") {
-				this.OutString("No Group or sMember name");
-				return false;
-			}
-			var sObjPeer = this._ObjPeerBuild(sMember);
-
-			var uMask = 0x0200; // Tell all.
-			var sDataMdf = "(Action){1}(PeerList){(" + sObjPeer + "){" + uMask + "}}";
-			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
-			if (iErr > 0) {
-				this.OutString("MemberAdd: Add group member failed err=" + iErr);
-				return false;
-			} else {
-				bRet = true;
-			}
-		}
-		return bRet;
-	};
-
-	/**
-     *  描述：删除成员（主席端）
-     *  sMember：[IN] 成员名
-     *  阻塞方式：非阻塞，立即返回
-     */
-
-	this.MemberDel = function (sMember) {
-
-		this.OutString("MemberDel");
-
-		if (this.m_Status.bServiceStart && this.m_Group.bChairman) {
-			if (sMember == "") {
-				this.OutString("No Group or sMember name");
-				return;
-			}
-			var sObjPeer = this._ObjPeerBuild(sMember);
-
-			var sDataMdf = "(Action){0}(PeerList){(" + sObjPeer + "){}}";
-			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sDataMdf, "");
-			if (iErr > 0) {
-				this.OutString("MemberAdd: Add group member failed err=" + iErr);
-			}
-		}
-	};
-
-	/**
-     *  描述：请求加入会议（成员端）
-     *  阻塞方式：非阻塞，立即返回
-     *  返回值： true 操作成功，false 操作失败
-     * @return {boolean}
-     */
-
-	this.Join = function () {
-		if (this.m_Status.bServiceStart && !this.m_Group.bChairman) {
-
-			var sData = "Join?" + this.m_Self.sObjSelf;
-			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjChair, 36, sData, "Join");
-			if (iErr > 0) {
-				this.OutString("Join:ObjectRequest Err=" + iErr);
-				return false;
-			}
-			return true;
-		}
-		return false;
-	};
-
-	/**
-     *  描述：离开会议
-     *  阻塞方式：非阻塞，立即返回
-     * @return {boolean}
-     */
-
-	this.Leave = function () {
-
-		if (this.m_Status.bServiceStart) {
-			var sData = "(Action){0}(PeerList){(" + this.m_Self.sObjSelf + "){}}";
-			var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjG, 32, sData, "Leave");
-			if (iErr > 0) {
-				this.OutString("Leave:ObjectRequest Err=" + iErr);
-				return false;
-			}
-		}
-	};
-
-	
-
-
-
-	
-	
-
-	/**
-     *  描述：给所有成员节点发送消息
-     *  阻塞方式：非阻塞，立即返回
-     *  sMsg：[IN] 消息内容
-     *  返回值： true 操作成功，false 操作失败
-     * @return {boolean}
-     */
-	this.NotifySend = function (sData) {
-		if (!this.m_Status.bServiceStart) {
-			return false;
-		}
-		if (sData == "") {
-			return false;
-		}
-
-		var iErr = this.m_Node.ObjectRequest(this.m_Group.sObjD, 32, sData, "pgLibConference.NotifySend");
-		if (iErr > 0) {
-			this.OutString("pgLibConference.NotifySend Err=" + iErr);
-			return false;
-		}
-		return true;
-	};
 
 
     this._KeepAdd = function (sObjPeer) {
@@ -428,4 +380,4 @@ Conference.prototype.OnEventProc = function(sAct,sData,sObjPeer) {
    } else {
        sAct = "PeerOffline";
    }
-}
+};

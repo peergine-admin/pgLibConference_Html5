@@ -5,10 +5,10 @@ require('./pgLibConferenceConst');
 require('./ConferencePeer');
 var VideoPeerList = require('./VideoPeerList');
 
-const ACTIVE_TIMER_INTERVAL = 2;
+var ACTIVE_TIMER_INTERVAL = 2;
 
 var bPrewStart = false;
-var sWndEle = "";
+// var sWndEle = "";
 
 function VideoOption (Node,sVideoParam) {
     // var self = this;
@@ -260,12 +260,12 @@ ConferenceVideo.prototype.VideoCreate = function (iFlag,bLarge,sVideoParam) {
 };
 
 ConferenceVideo.prototype.onVideoSync = function(sObj, uMeth, sData, uHandle, sObjPeer){
-    sAct = this.m_Node.omlGetContent(sData, "Action");
+    var sAct = this.m_Node.omlGetContent(sData, "Action");
     if (sAct == "1") {
         var sPeer3 = this._ObjPeerParsePeer(sObjPeer);
         this.EventProc("VideoSyncL", "", sPeer3);
     }
-}
+};
 
 ConferenceVideo.prototype.VideoDestroy = function (bLarge) {
     // var self = this;
